@@ -64,7 +64,6 @@ Sample response body from Khalti
 
 ```java
 HttpResponse<String> responsePay;
-HttpResponse<String> responsePay;
     try {
         responsePay = client.send(requestPay,HttpResponse.BodyHandlers.ofString());
 		String responseBody = responsePay.body();
