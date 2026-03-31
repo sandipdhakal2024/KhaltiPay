@@ -1,7 +1,5 @@
 package com.sandip.khaltipay;
 
-import com.google.gson.Gson;
-import com.sandip.khaltipay.pojo.Verification;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,6 +10,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import org.json.JSONObject;
 
 @WebServlet(name = "PaymentCheck", urlPatterns = {"/paydone"})
 public class PaymentCheck extends HttpServlet {
@@ -25,7 +24,7 @@ public class PaymentCheck extends HttpServlet {
                              "pidx": "%s"
                          }
                          """, pidx);
-        
+
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest requestPay = HttpRequest.newBuilder()
                 .uri(URI.create("https://dev.khalti.com/api/v2/epayment/lookup/"))
@@ -41,10 +40,22 @@ public class PaymentCheck extends HttpServlet {
             int statusCode = responsePay.statusCode();
 //            System.out.println("Status Code: "+statusCode);
             if (statusCode == 200) {
-                Gson gson = new Gson();
-                Verification verify = gson.fromJson(responseBody, Verification.class);
-//                System.out.println(verify.getStatus());
-                if ("Completed".equals(verify.getStatus())) {
+                /**
+                 * 
+                 *Success Response
+                    {
+                       "pidx": "HT6o6PEZRWFJ5ygavzHWd5",
+                       "total_amount": 1000,
+                       "status": "Completed",
+                       "transaction_id": "GFq9PFS7b2iYvL8Lir9oXe",
+                       "fee": 0,
+                       "refunded": false
+                    } 
+                 */
+                //Here responseBody is the Json string as above
+                JSONObject object = new JSONObject(responseBody);
+                String status = object.getString("status");
+                if ("Completed".equals(status)) {
                     //TODO: Add to database as per requirements
                     response.sendRedirect("paydone.html");
                 }

@@ -1,7 +1,5 @@
 package com.sandip.khaltipay;
 
-import com.google.gson.Gson;
-import com.sandip.khaltipay.pojo.Payment;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,6 +10,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import org.json.JSONObject;
 
 @WebServlet(asyncSupported = true, name = "PaymentServlet", urlPatterns = {"/payment"})
 public class PaymentServlet extends HttpServlet {
@@ -50,11 +49,18 @@ public class PaymentServlet extends HttpServlet {
             int statusCode = responsePay.statusCode();
 //            System.out.println("Status Code: "+statusCode);
             if (statusCode == 200) {
-                Gson gson = new Gson();
-                Payment paymentKhalti = gson.fromJson(responseBody, Payment.class);
-                System.out.println(paymentKhalti.getPaymentUrl());
-                response.sendRedirect(paymentKhalti.getPaymentUrl());
-//                System.out.println(responseBody);
+        /**
+         * Sample response from khalti; redirect to the provided url
+         *   {
+                "pidx": "bZQLD9wRVWo4CdESSfuSsB",
+                "payment_url": "https://test-pay.khalti.com/?pidx=bZQLD9wRVWo4CdESSfuSsB",
+                "expires_at": "2023-05-25T16:26:16.471649+05:45",
+                "expires_in": 1800
+            }
+         */
+                JSONObject object = new JSONObject(responseBody);
+                String payment_url = object.getString("payment_url");
+                response.sendRedirect(payment_url);
             }else{
                 System.out.println("Handle Error! Khalti Server Error!");
             }

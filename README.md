@@ -1,8 +1,8 @@
 # KhaltiPay
 
 *Extra tools and libraries:*
-1. Gson for converting Json String to Java Object
-2. Jsonschema2Pojo.com to create POJO with repsect to Json
+1. Gson and POJO class not needed
+2. Convert response to JSONObject and directly read the key-value data
 
 **Main Documentation: https://docs.khalti.com/khalti-epayment/**
 
@@ -71,10 +71,9 @@ HttpResponse<String> responsePay;
 //            System.out.println("Status Code: "+statusCode);
 		//Open link provided by Khalti if response status is OK
 		if (statusCode == 200) {
-			Gson gson = new Gson();
-			Payment paymentKhalti = gson.fromJson(responseBody, Payment.class);
-			System.out.println(paymentKhalti.getPaymentUrl());
-			response.sendRedirect(paymentKhalti.getPaymentUrl());
+			JSONObject object = new JSONObject(responseBody);
+                        String payment_url = object.getString("payment_url");
+                        response.sendRedirect(payment_url);
 //                System.out.println(responseBody);
 		}else{
 			System.out.println("Handle Error! Khalti Server Error!");
